@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>New Minimum Wage Calculator</title>
+	<meta charset="utf-8" />
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		
+	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.css" />
+	<!--[if lte IE 8]>
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.ie.css" />
+<![endif]-->
+
+	<style>
+	#container {
+			background: none;
+			height: 100%;
+    width: 100%;
+    margin:0 auto;
+		}
+		#map {
+			background: none;
+		}
+		#title {
+			font: 16px Arial, Helvetica, sans-serif;
+			text-align: center;
+		}
+		h2 {
+			margin-top: 5px;
+			margin-bottom: 8px;
+		}
+		#header {
+			font: 16px Arial, Helvetica, sans-serif;
+			font-weight: bold;
+			width: 100%;
+			height: 100%;
+			text-align: center;
+			color: #756bb1;
+  background-color: white;
+  z-index: 700;
+			opacity: 0.9;
+			padding: 10px 0;
+		}
+	
+
+		h1 {
+			margin: 0px;
+		}
+		
+
+
+		.info {
+			padding: 6px 8px;
+			font: 13px/16px Arial, Helvetica, sans-serif;
+			color: black;
+			width: 65%;
+			height: auto;
+			opacity: 0.8;
+			background: #FFF;
+			box-shadow: 0 0 15px rgba(0,0,0,0.2);
+			border-radius: 5px;
+		}
+
+		.info span {
+			color: #A10808;
+			font-size: 15px;
+			font-weight: bold;
+		}
+
+		.info p span {
+			color: #A10808;
+			font-size: 19px;
+			font-weight: bold;
+			text-align: center;
+		}
+
+		#source {
+			padding: 10px;
+			font: 12px Arial, Helvetica, sans-serif;
+			width: 45%;
+			color: black;
+			height: auto;
+			position: absolute;
+			opacity: 0.8;
+			bottom: 1%;
+			right: 2%;
+			background: #FFF;
+			box-shadow: 0 0 15px rgba(0,0,0,0.2);
+			border-radius: 5px;
+		}
+
+		#source a{
+			font: 12px Arial, Helvetica, sans-serif;
+			color: #A10808;
+			
+		}
+		.info h3 {
+			margin: 0 0 5px;
+			color: #000;
+		}
+
+		#source h3 {
+			margin-top: 2px;
+		}
+		#source p {
+			margin-top: 4px;
+		}
+
+		div.info.legend.leaflet-control {
+			margin-bottom: 20%;
+		}
+
+		.legend {
+    line-height: 18px;
+    color: #000;
+    width: auto;
+}
+.legend i {
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.7;
+}
+
+@media (max-width: 520px) {
+	h2 {
+			margin-top: 5px;
+			margin-bottom: 8px;
+			font-size: 16px;
+		}
+	#source {
+			visibility: hidden;
+		}
+
+	.info {
+			padding: 6px 8px;
+			font: 13px/16px Arial, Helvetica, sans-serif;
+			color: black;
+			width: 35%;
+			height: auto;
+			opacity: 0.8;
+			background: #FFF;
+			box-shadow: 0 0 15px rgba(0,0,0,0.2);
+			border-radius: 5px;
+		}
+
+		
+
+		.info span {
+			color: #A10808;
+			font-size: 12px;
+			font-weight: bold;
+		}
+
+		.info p span {
+			color: #A10808;
+			font-size: 16px;
+			font-weight: bold;
+			text-align: center;
+		}
+
+}
+		
+
+		
+	</style>
+</head>
+<body>
+	<div id="container">
+	<div id="header"> Choose your situation:
+		<select class="dropdown" id="mySelect" onchange="changeSituation();">
+	<option value="0" class="label">1 Adult</option>
+	<option value="1">1 Adult, 1 Child</option>
+	<option value="2">1 Adult, 2 Children</option>
+	<option value="3">1 Adult, 3 Children</option>
+	<option value="4">2 Adults</option>
+	<option value="5">2 Adults, 1 Child</option>
+	<option value="6">2 Adults, 2 Children</option>
+	<option value="7">2 Adults, 3 Children</option>
+</select>
+
+	
+            
+        </div>
+	<div id="map"></div>
+	<div id="source">Loading... Please wait.</div>
+</div>
+	
+	<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+
+	<script src="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.js"></script>
+	
+
+	<script type="text/javascript" src="nj_counties_2.js"></script>
+	<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-46217938-2']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+	<script type="text/javascript">
+
+		// Disable draggin on the map
+		
+
+
+
+		
+		var map = new L.Map("map", {
+    center: new L.LatLng(40.1524 , -73.92),
+    zoom: 8,
+    zoomControl:false,
+    dragging: false,
+    touchZoom: false,
+    scrollWheelZoom:false,
+    doubleClickZoom: false,
+    boxZoom: false,
+    keyboard: false
+
+});
+$('a.totals_on').addClass('active');
+
+var mobile = $(window).width();
+
+
+
+if (mobile < 520) {
+	map.setView([39.6524 , -74.12], 7);
+	map.dragging.enable();
+map.touchZoom.enable();
+map.doubleClickZoom.enable();
+map.scrollWheelZoom.enable();
+map.boxZoom.enable();
+map.keyboard.enable();
+}
+
+var lastFeature;
+		var layer;
+		$('#source').html('<h3>Data Source:</h3> <a href="http://livingwage.mit.edu/states/34/locations">MIT Living Wage Calculator.</a><p> The living wage is the hourly rate than an individual must earn to support their family, if they are the sole provider and are working full-time.</p><p>On the map, the darker the colors, the greater the difference between the new minimum wage and the living wage.');
+
+
+
+		// control that shows state info on hover
+		var info = L.control();
+
+		info.onAdd = function (map) {
+			this._div = L.DomUtil.create('div', 'info');
+			this.update();
+			return this._div;
+		};
+
+
+		info.update = function (props) {
+
+			this._div.innerHTML = (props ?
+				'<h2>' + props.name + ' County</h2>Living Wage (per hour): <span>$' + props.onead_liv.toFixed(2) + '</span><br>New Minimum Wage: <span>$8.25</span><br><p>You need to earn <span>$'+ props.onead_need.toFixed(2) +'</span> more to make a living wage.<br></p>Poverty Wage: <b>$' + props.onead_pov.toFixed(2) + '</b><br><br><h3>Monthly Expenses</h3> Food: <b>$' + props.onead_food + '</b><br>Child Care: <b>$' + props.onead_care + '</b><br>Medical: <b>$' + props.onead_med + '</b><br>Housing: <b>$' + props.onead_hous + '</b><br>Transportation: <b>$' + props.onead_trans + '</b><br>Other: <b>$' + props.onead_other + '</b><br>Required monthly income after taxes: <b>$' + props.onead_monthly + '</b><br>Annual taxes: <b>$' + props.onead_taxes + '</b><p>Required annual income before taxes: <span>$' + props.onead_income + '</span></p>'
+				: 'Hover over or click on a county for more information.');
+
+			_gaq.push(['_trackEvent', 'hover_over_county', 'hover', 'Every time someone hovers over a county']);
+
+		};
+
+
+		
+
+		
+		info.addTo(map);
+
+
+
+
+		// get color depending on population density value
+		function getColor(d) {
+			return d < 1.00 ? '#f2f0f7' :
+			       d < 2.00  ? '#cbc9e2' :
+			       d < 3.00  ? '#9e9ac8' :
+			       d < 4.00  ? '#756bb1' :
+			       d < 5.00  ? '#54278f' :
+
+			                  '#FFEDA0';
+		}
+
+		function getColor2(d) {
+			return d < 5.00 ? '#f2f0f7' :
+			       d < 6.00  ? '#cbc9e2' :
+			       d < 7.00  ? '#9e9ac8' :
+			       d < 8.00  ? '#756bb1' :
+			       d < 9.00  ? '#54278f' :
+
+			                  '#FFEDA0';
+		}
+
+		function getColor3(d) {
+			return d < 11.00 ? '#f2f0f7' :
+			       d < 12.00  ? '#cbc9e2' :
+			       d < 13.00  ? '#9e9ac8' :
+			       d < 14.00  ? '#756bb1' :
+			       d < 15.00  ? '#54278f' :
+
+			                  '#FFEDA0';
+		}
+
+		function getColor4(d) {
+			return d < 16.00 ? '#f2f0f7' :
+			       d < 17.00  ? '#cbc9e2' :
+			       d < 18.00  ? '#9e9ac8' :
+			       d < 19.00  ? '#756bb1' :
+			       d < 20.00  ? '#54278f' :
+
+			                  '#FFEDA0';
+		}
+
+		function getColor5(d) {
+			return d < 23.00 ? '#f2f0f7' :
+			       d < 24.00  ? '#cbc9e2' :
+			       d < 25.00  ? '#9e9ac8' :
+			       d < 26.00  ? '#756bb1' :
+			       d < 27.00  ? '#54278f' :
+
+			                  '#FFEDA0';
+		}
+
+		function getColor6(d) {
+			return d < 14.00 ? '#f2f0f7' :
+			       d < 15.00  ? '#cbc9e2' :
+			       d < 16.00  ? '#9e9ac8' :
+			       d < 17.00  ? '#756bb1' :
+			       d < 18.00  ? '#54278f' :
+
+			                  '#FFEDA0';
+		}
+
+		function getColor7(d) {
+			return d < 9.00 ? '#f2f0f7' :
+			       d < 10.00  ? '#cbc9e2' :
+			       d < 11.00  ? '#9e9ac8' :
+			       d < 12.00  ? '#756bb1' :
+			       d < 13.00  ? '#54278f' :
+
+			                  '#FFEDA0';
+		}
+
+		function getColor8(d) {
+			return d < 10.00 ? '#f2f0f7' :
+			       d < 11.00  ? '#cbc9e2' :
+			       d < 12.00  ? '#9e9ac8' :
+			       d < 13.00  ? '#756bb1' :
+			       d < 14.00  ? '#54278f' :
+
+			                  '#FFEDA0';
+		}
+
+
+
+
+
+		function style(feature) {
+			return {
+				weight: 1,
+				opacity: 1,
+				color: '#690101',
+				dashArray: '',
+				fillOpacity: 0.8,
+				fillColor: getColor(feature.properties.onead_liv-8.25)
+			};
+		}
+
+		function style1(feature) {
+			return {
+				weight: 1,
+				opacity: 1,
+				color: '#690101',
+				dashArray: '',
+				fillOpacity: 0.8,
+				fillColor: getColor3(feature.properties.onead_1ch_liv-8.25)
+			};
+		}
+
+		function style2(feature) {
+			return {
+				weight: 1,
+				opacity: 1,
+				color: '#690101',
+				dashArray: '',
+				fillOpacity: 0.8,
+				fillColor: getColor4(feature.properties.onead_2ch_liv-8.25)
+			};
+		}
+		function style3(feature) {
+			return {
+				weight: 1,
+				opacity: 1,
+				color: '#690101',
+				dashArray: '',
+				fillOpacity: 0.8,
+				fillColor: getColor5(feature.properties.onead_3ch_liv-8.25)
+			};
+		}
+
+		function style4(feature) {
+			return {
+				weight: 1,
+				opacity: 1,
+				color: '#690101',
+				dashArray: '',
+				fillOpacity: 0.8,
+				fillColor: getColor2(feature.properties.twoad_liv-8.25)
+			};
+		}
+		function style5(feature) {
+			return {
+				weight: 1,
+				opacity: 1,
+				color: '#690101',
+				dashArray: '',
+				fillOpacity: 0.8,
+				fillColor: getColor7(feature.properties.twoad_1ch_liv-8.25)
+			};
+		}
+		function style6(feature) {
+			return {
+				weight: 1,
+				opacity: 1,
+				color: '#690101',
+				dashArray: '',
+				fillOpacity: 0.8,
+				fillColor: getColor8(feature.properties.twoad_2ch_liv-8.25)
+			};
+		}
+
+		function style7(feature) {
+			return {
+				weight: 1,
+				opacity: 1,
+				color: '#690101',
+				dashArray: '',
+				fillOpacity: 0.8,
+				fillColor: getColor6(feature.properties.twoad_3ch_liv-8.25)
+			};
+		}
+
+		
+
+		
+
+
+		function resetHighlight(e) {
+			mylayer.resetStyle(e.target);
+			
+			
+		}
+
+		function zoomToFeature(e) {
+			map.fitBounds(e.target.getBounds());
+			info.update(layer.feature.properties);
+
+		}
+
+		
+
+		function highlightFeature(e) {
+			if (lastFeature) {
+				mylayer.resetStyle(lastFeature);
+
+			}
+
+
+			
+			layer = e.target;
+
+			layer.setStyle({
+				fillColor: '#FCE6B1',
+				fillOpacity: 0.7
+			});
+
+
+
+			if (!L.Browser.ie && !L.Browser.opera) {
+				layer.bringToFront();
+			}
+			lastFeature = e.target;
+			info.update(layer.feature.properties);
+
+		}
+
+		var lastFeature2;
+
+		function clickonme(e) {
+			if (lastFeature2) {
+				mylayer.resetStyle(lastFeature2);
+
+			}
+
+			
+			layer = e.target;
+
+			layer.setStyle({
+				fillColor: '#FCE6B1',
+				fillOpacity: 0.7
+			});
+
+			if (!L.Browser.ie && !L.Browser.opera) {
+				layer.bringToFront();
+			}
+		
+			lastFeature2 = e.target;
+
+			info.update(layer.feature.properties);
+
+			
+
+		}
+
+		function onEachFeature(feature, layer) {
+			layer.on({
+				mouseover: highlightFeature,
+				click: clickonme,
+				mouseout: resetHighlight
+			});
+		}
+		var mylayer = L.geoJson(statesData, {
+			style: style,
+			onEachFeature: onEachFeature
+		});
+
+		map.addLayer(mylayer);
+
+		function changeSituation() { var situation =document.getElementById("mySelect").value
+
+		if (situation ==1) {
+              map.removeLayer(mylayer);
+            mylayer = L.geoJson(statesData, {style: style1, onEachFeature: onEachFeature});
+            map.addLayer(mylayer);
+
+            info.update = function (props) {
+			this._div.innerHTML = (props ?
+	
+
+			'<h2>' + props.name + ' County</h2>Living Wage (per hour): <span>$' + props.onead_1ch_liv.toFixed(2) + '</span><br>New Minimum Wage: <span>$8.25</span><br><p>You need to earn <span>$' + props.onead_1ch_need.toFixed(2) + '</span> more to make a living wage.<br></p>Poverty Wage: <b>$' + props.onead_1ch_pov.toFixed(2) + '</b><br><br><h3>Monthly Expenses</h3> Food: <b>$' + props.onead_1ch_food + '</b><br>Child Care: <b>$' + props.onead_1ch_care + '</b><br>Medical: <b>$' + props.onead_1ch_med + '</b><br>Housing: <b>$' + props.onead_1ch_hous + '</b><br>Transportation: <b>$' + props.onead_1ch_trans + '</b><br>Other: <b>$' + props.onead_1ch_other + '</b><br>Required monthly income after taxes: <b>$' + props.onead_1ch_monthly + '</b><br>Annual taxes: <b>$' + props.onead_1ch_taxes + '</b><p>Required annual income before taxes: <span>$' + props.onead_1ch_income + '</span></p>'
+				: 'Hover over or click on a county for more information.');
+		};
+		info.update();
+	} else if (situation ==0) {
+		 map.removeLayer(mylayer);
+            mylayer = L.geoJson(statesData, {style: style, onEachFeature: onEachFeature});
+            map.addLayer(mylayer);
+
+
+            info.update = function (props) {
+			this._div.innerHTML = (props ?
+				'<h2>' + props.name + ' County</h2>Living Wage (per hour): <span>$' + props.onead_liv.toFixed(2) + '</span><br>New Minimum Wage: <span>$8.25</span><br><p>You need to earn <span>$' + props.onead_need.toFixed(2) + '</span> more to make a living wage.<br></p>Poverty Wage: <b>$' + props.onead_pov.toFixed(2) + '</b><br><br><h3>Monthly Expenses</h3> Food: <b>$' + props.onead_food + '</b><br>Child Care: <b>$' + props.onead_care + '</b><br>Medical: <b>$' + props.onead_med + '</b><br>Housing: <b>$' + props.onead_hous + '</b><br>Transportation: <b>$' + props.onead_trans + '</b><br>Other: <b>$' + props.onead_other + '</b><br>Required monthly income after taxes: <b>$' + props.onead_monthly + '</b><br>Annual taxes: <b>$' + props.onead_taxes + '</b><p>Required annual income before taxes: <span>$' + props.onead_income + '</span></p>'
+				: 'Hover over or click on a county for more information.');
+		};
+		info.update();
+
+
+} else if (situation ==2) {
+		 map.removeLayer(mylayer);
+            mylayer = L.geoJson(statesData, {style: style2, onEachFeature: onEachFeature});
+            map.addLayer(mylayer);
+           
+            info.update = function (props) {
+			this._div.innerHTML = (props ?
+
+			'<h2>' + props.name + ' County</h2>Living Wage (per hour): <span>$' + props.onead_2ch_liv.toFixed(2) + '</span><br>New Minimum Wage: <span>$8.25</span><br><p>You need to earn <span>$' + props.onead_2ch_need.toFixed(2) + '</span> more to make a living wage.<br></p>Poverty Wage: <b>$' + props.onead_2ch_pov.toFixed(2) + '</b><br><br><h3>Monthly Expenses</h3> Food: <b>$' + props.onead_2ch_food + '</b><br>Child Care: <b>$' + props.onead_2ch_care + '</b><br>Medical: <b>$' + props.onead_2ch_med + '</b><br>Housing: <b>$' + props.onead_2ch_hous + '</b><br>Transportation: <b>$' + props.onead_2ch_trans + '</b><br>Other: <b>$' + props.onead_2ch_other + '</b><br>Required monthly income after taxes: <b>$' + props.onead_2ch_monthly + '</b><br>Annual taxes: <b>$' + props.onead_2ch_taxes + '</b><p>Required annual income before taxes: <span>$' + props.onead_2ch_income + '</span></p>'
+				: 'Hover over or click on a county for more information.');
+		};
+	info.update();
+
+
+} else if (situation ==3) {
+		 map.removeLayer(mylayer);
+            mylayer = L.geoJson(statesData, {style: style3, onEachFeature: onEachFeature});
+            map.addLayer(mylayer);
+            info.update = function (props) {
+			this._div.innerHTML = (props ?
+			
+			'<h2>' + props.name + ' County</h2>Living Wage (per hour): <span>$' + props.onead_3ch_liv.toFixed(2) + '</span><br>New Minimum Wage: <span>$8.25</span><br><p>You need to earn <span>$' + props.onead_3ch_need.toFixed(2) + '</span> more to make a living wage.<br></p>Poverty Wage: <b>$' + props.onead_3ch_pov.toFixed(2) + '</b><br><br><h3>Monthly Expenses</h3> Food: <b>$' + props.onead_3ch_food + '</b><br>Child Care: <b>$' + props.onead_3ch_care + '</b><br>Medical: <b>$' + props.onead_3ch_med + '</b><br>Housing: <b>$' + props.onead_3ch_hous + '</b><br>Transportation: <b>$' + props.onead_3ch_trans + '</b><br>Other: <b>$' + props.onead_3ch_other + '</b><br>Required monthly income after taxes: <b>$' + props.onead_3ch_monthly + '</b><br>Annual taxes: <b>$' + props.onead_3ch_taxes + '</b><p>Required annual income before taxes: <span>$' + props.onead_3ch_income + '</span></p>'
+				: 'Hover over or click on a county for more information.');
+		};
+		info.update();
+
+
+} else if (situation ==4) {
+		  map.removeLayer(mylayer);
+            mylayer = L.geoJson(statesData, {style: style4, onEachFeature: onEachFeature});
+            map.addLayer(mylayer);
+            info.update = function (props) {
+			this._div.innerHTML = (props ?
+
+			'<h2>' + props.name + ' County</h2>Living Wage (per hour): <span>$' + props.twoad_liv.toFixed(2) + '</span><br>New Minimum Wage: <span>$8.25</span><br><p>You need to earn <span>$' + props.twoad_need.toFixed(2) + '</span> more to make a living wage.<br></p>Poverty Wage: <b>$' + props.twoad_pov.toFixed(2) + '</b><br><br><h3>Monthly Expenses</h3> Food: <b>$' + props.twoad_food + '</b><br>Child Care: <b>$' + props.twoad_care + '</b><br>Medical: <b>$' + props.twoad_med + '</b><br>Housing: <b>$' + props.twoad_hous + '</b><br>Transportation: <b>$' + props.twoad_trans + '</b><br>Other: <b>$' + props.twoad_other + '</b><br>Required monthly income after taxes: <b>$' + props.twoad_monthly + '</b><br>Annual taxes: <b>$' + props.twoad_taxes + '</b><p>Required annual income before taxes: <span>$' + props.twoad_income + '</span></p>'
+				: 'Hover over or click on a county for more information.');
+		};
+		info.update();
+
+
+} else if (situation ==5) {
+		  map.removeLayer(mylayer);
+            mylayer = L.geoJson(statesData, {style: style5, onEachFeature: onEachFeature});
+            map.addLayer(mylayer);
+            info.update = function (props) {
+			this._div.innerHTML = (props ?
+
+			'<h2>' + props.name + ' County</h2>Living Wage (per hour): <span>$' + props.twoad_1ch_liv.toFixed(2) + '</span><br>New Minimum Wage: <span>$8.25</span><br><p>You need to earn <span>$' + props.twoad_1ch_need.toFixed(2) + '</span> more to make a living wage.<br></p>Poverty Wage: <b>$' + props.twoad_1ch_pov.toFixed(2) + '</b><br><br><h3>Monthly Expenses</h3> Food: <b>$' + props.twoad_1ch_food + '</b><br>Child Care: <b>$' + props.twoad_1ch_care + '</b><br>Medical: <b>$' + props.twoad_1ch_med + '</b><br>Housing: <b>$' + props.twoad_1ch_hous + '</b><br>Transportation: <b>$' + props.twoad_1ch_trans + '</b><br>Other: <b>$' + props.twoad_1ch_other + '</b><br>Required monthly income after taxes: <b>$' + props.twoad_1ch_monthly + '</b><br>Annual taxes: <b>$' + props.twoad_1ch_taxes + '</b><p>Required annual income before taxes: <span>$' + props.twoad_1ch_income + '</span></p>'
+				: 'Hover over or click on a county for more information.');
+
+
+		};
+		info.update();
+
+
+} else if (situation ==6) {
+		 map.removeLayer(mylayer);
+            mylayer = L.geoJson(statesData, {style: style6, onEachFeature: onEachFeature});
+            map.addLayer(mylayer);
+            info.update = function (props) {
+			this._div.innerHTML = (props ?
+
+
+			'<h2>' + props.name + ' County</h2>Living Wage (per hour): <span>$' + props.twoad_2ch_liv.toFixed(2) + '</span><br>New Minimum Wage: <span>$8.25</span><br><p>You need to earn <span>$' + props.twoad_2ch_need.toFixed(2) + '</span> more to make a living wage.<br></p>Poverty Wage: <b>$' + props.twoad_2ch_pov.toFixed(2) + '</b><br><br><h3>Monthly Expenses</h3> Food: <b>$' + props.twoad_2ch_food + '</b><br>Child Care: <b>$' + props.twoad_2ch_care + '</b><br>Medical: <b>$' + props.twoad_2ch_med + '</b><br>Housing: <b>$' + props.twoad_2ch_hous + '</b><br>Transportation: <b>$' + props.twoad_2ch_trans + '</b><br>Other: <b>$' + props.twoad_2ch_other + '</b><br>Required monthly income after taxes: <b>$' + props.twoad_2ch_monthly + '</b><br>Annual taxes: <b>$' + props.twoad_2ch_taxes + '</b><p>Required annual income before taxes: <span>$' + props.twoad_2ch_income + '</span></p>'
+				: 'Hover over or click on a county for more information.');
+		};
+		info.update();
+
+
+} else if (situation ==7) {
+		 map.removeLayer(mylayer);
+            mylayer = L.geoJson(statesData, {style: style7, onEachFeature: onEachFeature});
+            map.addLayer(mylayer);
+            info.update = function (props) {
+			this._div.innerHTML = (props ?
+
+			'<h2>' + props.name + ' County</h2>Living Wage (per hour): <span>$' + props.twoad_3ch_liv.toFixed(2) + '</span><br>New Minimum Wage: <span>$8.25</span><br><p>You need to earn <span>$' + props.twoad_3ch_need.toFixed(2) + '</span> more to make a living wage.<br></p>Poverty Wage: <b>$' + props.twoad_3ch_pov.toFixed(2) + '</b><br><br><h3>Monthly Expenses</h3> Food: <b>$' + props.twoad_3ch_food + '</b><br>Child Care: <b>$' + props.twoad_3ch_care + '</b><br>Medical: <b>$' + props.twoad_3ch_med + '</b><br>Housing: <b>$' + props.twoad_3ch_hous + '</b><br>Transportation: <b>$' + props.twoad_3ch_trans + '</b><br>Other: <b>$' + props.twoad_3ch_other + '</b><br>Required monthly income after taxes: <b>$' + props.twoad_3ch_monthly + '</b><br>Annual taxes: <b>$' + props.twoad_3ch_taxes + '</b><p>Required annual income before taxes: <span>$' + props.twoad_3ch_income + '</span></p>'
+				: 'Hover over or click on a county for more information.');
+		
+		};
+		info.update();
+
+}
+}
+
+$(window).on("resize", function() {
+    $("#map").height($(window).height()).width($(window).width());
+    map.invalidateSize();
+}).trigger("resize");
+		
+
+		
+
+
+
+	</script>
+</body>
+</html>

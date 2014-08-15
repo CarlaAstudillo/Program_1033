@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Program 1033</title>
+	<meta charset="utf-8" />
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		
+	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.css" />
+
+
+	<script src="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.js"></script>
+	<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/transition.min.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/collapse.min.js"></script>
+	<!--[if lte IE 8]>
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.ie.css" />
+<![endif]-->
+
+	<style>
+	#container {
+			background: none;
+			height: 100%;
+    width: 100%;
+    margin:0 auto;
+		}
+		#map {
+			background: none;
+		}
+		#title {
+			font: 16px Arial, Helvetica, sans-serif;
+			text-align: center;
+		}
+		h2 {
+			font: 20px Arial, Helvetica, sans-serif;
+			font-weight: bold;
+			margin-top: 5px;
+			margin-bottom: 8px;
+		}
+
+		h5 {
+			font: 14px Arial, Helvetica, sans-serif;
+			font-weight: bold;
+		}
+		#accordion {
+			font: 16px Arial, Helvetica, sans-serif;
+			font-weight: bold;
+			width: 100%;
+			height: 100%;
+			text-align: center;
+			color: #756bb1;
+  background-color: white;
+  z-index: 700;
+			opacity: 0.9;
+			padding: 10px 0;
+		}
+	
+
+		h1 {
+			margin: 0px;
+		}
+		
+
+
+		.info {
+			padding: 6px 8px;
+			font: 13px/16px Arial, Helvetica, sans-serif;
+			color: black;
+			width: 100%;
+			height: auto;
+			opacity: 0.8;
+			background: #FFF;
+			box-shadow: 0 0 15px rgba(0,0,0,0.2);
+			border-radius: 5px;
+		}
+
+		.info span {
+			color: #A10808;
+			font-size: 15px;
+			font-weight: bold;
+		}
+
+		.info p span {
+			color: #A10808;
+			font-size: 19px;
+			font-weight: bold;
+			text-align: center;
+		}
+
+		#accordion {
+			padding: 10px;
+			font: 12px Arial, Helvetica, sans-serif;
+			width: 45%;
+			color: black;
+			height: auto;
+			position: absolute;
+			opacity: 0.8;
+			bottom: 1%;
+			right: 2%;
+		}
+
+		
+		.info h3 {
+			margin: 0 0 5px;
+			color: #000;
+		}
+
+	
+
+
+		.legend {
+    line-height: 18px;
+    color: #000;
+    width: auto;
+}
+.legend i {
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.7;
+}
+
+.arrow_box {
+	position: relative;
+	background: #88b7d5;
+	padding: 10px 0;
+	border: 4px solid #c2e1f5;
+}
+.arrow_box:after, .arrow_box:before {
+	right: 100%;
+	top: 50%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
+
+.arrow_box:after {
+	border-color: rgba(136, 183, 213, 0);
+	border-right-color: #88b7d5;
+	border-width: 19px;
+	margin-top: -19px;
+}
+.arrow_box:before {
+	border-color: rgba(194, 225, 245, 0);
+	border-right-color: #c2e1f5;
+	border-width: 26px;
+	margin-top: -26px;
+}
+
+@media (max-width: 520px) {
+	h2 {
+			margin-top: 5px;
+			margin-bottom: 8px;
+			font-size: 16px;
+		}
+	#header {
+			visibility: hidden;
+		}
+
+	.info {
+			padding: 6px 8px;
+			font: 13px/16px Arial, Helvetica, sans-serif;
+			color: black;
+			width: 35%;
+			height: auto;
+			opacity: 0.8;
+			background: #FFF;
+			box-shadow: 0 0 15px rgba(0,0,0,0.2);
+			border-radius: 5px;
+		}
+
+		.info span {
+			color: #A10808;
+			font-size: 12px;
+			font-weight: bold;
+		}
+
+		.info p span {
+			color: #A10808;
+			font-size: 16px;
+			font-weight: bold;
+			text-align: center;
+		}
+
+}
+		
+
+		
+	</style>
+</head>
+<body>
+	<div id="container">
+	
+	<div id="map"></div>
+	
+<div class="panel-group" id="accordion">
+  <div class="panel panel-default">
+    <div class="arrow_box">
+      <h4 class="panel-title">
+        <a id="LNK" data-toggle="collapse" value="1" data-parent="#accordion" 
+          href="#collapseOne">
+          Guns
+        </a>
+      </h4>
+    </div>
+    <div id="collapseOne" class="panel-collapse collapse in">
+      <div class="panel-body">
+        Nihil anim keffiyeh helvetica, craft beer labore wes anderson 
+        cred nesciunt sapiente ea proident. Ad vegan excepteur butcher 
+        vice lomo.
+      </div>
+    </div>
+  </div>
+  <div class="panel panel-default">
+    <div class="arrow_box">
+      <h4 class="panel-title">
+        <a id="LNK" data-toggle="collapse" value="2" data-parent="#accordion" 
+          href="#collapseTwo">
+          Goggles/Night Vision
+        </a>
+      </h4>
+    </div>
+    <div id="collapseTwo" class="panel-collapse collapse">
+      <div class="panel-body">
+        Nihil anim keffiyeh helvetica, craft beer labore wes anderson 
+        cred nesciunt sapiente ea proident. Ad vegan excepteur butcher 
+        vice lomo.
+      </div>
+    </div>
+  </div>
+  <div class="panel panel-default">
+    <div class="arrow_box">
+      <h4 class="panel-title">
+        <a id="LNK" data-toggle="collapse" value="3" data-parent="#accordion" 
+          href="#collapseThree">
+          Trucks
+        </a>
+      </h4>
+    </div>
+    <div id="collapseThree" class="panel-collapse collapse">
+      <div class="panel-body">
+        Nihil anim keffiyeh helvetica, craft beer labore wes anderson 
+        cred nesciunt sapiente ea proident. Ad vegan excepteur butcher 
+        vice lomo.
+      </div>
+    </div>
+  </div>
+   <div class="panel panel-default">
+    <div class="arrow_box">
+      <h4 class="panel-title">
+        <a id="LNK" data-toggle="collapse" value="4" data-parent="#accordion" 
+          href="#collapseFour">
+          Gas Masks
+        </a>
+      </h4>
+    </div>
+    <div id="collapseFour" class="panel-collapse collapse">
+      <div class="panel-body">
+        Nihil anim keffiyeh helvetica, craft beer labore wes anderson 
+        cred nesciunt sapiente ea proident. Ad vegan excepteur butcher 
+        vice lomo.
+      </div>
+    </div>
+  </div>
+   <div class="panel panel-default">
+    <div class="arrow_box">
+      <h4 class="panel-title">
+        <a id="LNK" data-toggle="collapse" value="5" data-parent="#accordion" 
+          href="#collapseFive">
+          Body Armor
+        </a>
+      </h4>
+    </div>
+    <div id="collapseFive" class="panel-collapse collapse">
+      <div class="panel-body">
+        Nihil anim keffiyeh helvetica, craft beer labore wes anderson 
+        cred nesciunt sapiente ea proident. Ad vegan excepteur butcher 
+        vice lomo.
+      </div>
+    </div>
+  </div>
+  
+        
+</div>
+
+
+	
+
+	
+
+	
+	
+	
+
+	<script type="text/javascript" src="nj_counties_2.js"></script>
+	<script type="text/javascript">
+
+  
+
+</script>
+	<script type="text/javascript">
+
+		// Disable draggin on the map
+		
+
+
+
+		
+		var map = new L.Map("map", {
+    center: new L.LatLng(40.1524 , -73.92),
+    zoom: 8,
+    zoomControl:false,
+    dragging: false,
+    touchZoom: false,
+    scrollWheelZoom:false,
+    doubleClickZoom: false,
+    boxZoom: false,
+    keyboard: false
+
+});
+$('a.totals_on').addClass('active');
+
+var mobile = $(window).width();
+
+
+
+if (mobile < 520) {
+	map.setView([39.6524 , -74.12], 7);
+	map.dragging.enable();
+map.touchZoom.enable();
+map.doubleClickZoom.enable();
+map.scrollWheelZoom.enable();
+map.boxZoom.enable();
+map.keyboard.enable();
+}
+
+var lastFeature;
+		var layer;
+		
+
+
+		// control that shows state info on hover
+		var info = L.control();
+
+		info.onAdd = function (map) {
+			this._div = L.DomUtil.create('div', 'info');
+			this.update();
+			return this._div;
+		};
+
+
+		info.update = function (props) {
+
+			this._div.innerHTML = (props ?
+				'<h2>' + props.name + ' County</h2><h5>Total Guns: TK worth a total of $TK</h5> <p><b>M-16 rifles:</b> <span>' + props.msixteentotal + '</span> worth a total of <span>$'+ props.msixteenmoney +'</span><br>Participating agencies: <b>' + props.msixteenagencies + '</b></p><p><b>M-14 rifles:</b> <span>' + props.mfourteentotal + '</span> worth a total of <span>$'+ props.mfourteenmoney +'</span><br>Participating agencies: <b>' + props.mfourteenagencies + '</b></p><br><b>Total 12 Gauge Shotguns (Riot Type):</b> <span>' + props.twelvegauge + '</span><br><p><b>Bayonets:</b> <span>'+ props.bayonet +'</span><br>'
+				: 'Hover over or click on a county for more information.');
+
+			
+
+		};
+
+
+		
+
+		
+		info.addTo(map);
+
+
+
+
+		// get color depending on population density value
+		function getColor(d) {
+			return d < 10 ? '#f2f0f7' :
+			       d < 40  ? '#cbc9e2' :
+			       d < 60  ? '#9e9ac8' :
+			       d < 80  ? '#756bb1' :
+			       d < 175  ? '#54278f' :
+
+			                  '#FFEDA0';
+		}
+
+		function getColor2(d) {
+			return d < 1 ? '#f2f0f7' :
+			       d < 25  ? '#cbc9e2' :
+			       d < 80  ? '#9e9ac8' :
+			       d < 330  ? '#756bb1' :
+			       d < 800  ? '#54278f' :
+
+			                  '#FFEDA0';
+		}
+
+		function getColor3(d) {
+			return d < 1 ? '#f2f0f7' :
+			       d < 10  ? '#cbc9e2' :
+			       d < 50  ? '#9e9ac8' :
+			       d < 100  ? '#756bb1' :
+			       d < 151  ? '#54278f' :
+
+			                  '#FFEDA0';
+		}
+
+		function getColor4(d) {
+			return d < 1 ? '#f2f0f7' :
+			       d < 51  ? '#cbc9e2' :
+			       d < 200  ? '#9e9ac8' :
+			       d < 600  ? '#756bb1' :
+			       d < 2000  ? '#54278f' :
+
+			                  '#FFEDA0';
+		}
+
+		function getColor5(d) {
+			return d < 1 ? '#f2f0f7' :
+			       d < 11  ? '#cbc9e2' :
+			       d < 51  ? '#9e9ac8' :
+			       d < 100  ? '#756bb1' :
+			       d < 200  ? '#54278f' :
+
+			                  '#FFEDA0';
+		}
+
+
+
+
+
+
+
+		function style(feature) {
+			return {
+				weight: 1,
+				opacity: 1,
+				color: '#690101',
+				dashArray: '',
+				fillOpacity: 0.8,
+				fillColor: getColor(feature.properties.msixteentotal)
+			};
+		}
+
+		function style2(feature) {
+			return {
+				weight: 1,
+				opacity: 1,
+				color: '#690101',
+				dashArray: '',
+				fillOpacity: 0.8,
+				fillColor: getColor2(feature.properties.eye_gogglestotal)
+			};
+		}
+
+		function style3(feature) {
+			return {
+				weight: 1,
+				opacity: 1,
+				color: '#690101',
+				dashArray: '',
+				fillOpacity: 0.8,
+				fillColor: getColor3(feature.properties.trucks_total)
+			};
+		}
+		function style4(feature) {
+			return {
+				weight: 1,
+				opacity: 1,
+				color: '#690101',
+				dashArray: '',
+				fillOpacity: 0.8,
+				fillColor: getColor4(feature.properties.gas_maskstotal)
+			};
+		}
+
+		function style5(feature) {
+			return {
+				weight: 1,
+				opacity: 1,
+				color: '#690101',
+				dashArray: '',
+				fillOpacity: 0.8,
+				fillColor: getColor5(feature.properties.body_armortotal)
+			};
+		}
+
+		
+
+		
+
+		
+
+
+		function resetHighlight(e) {
+			mylayer.resetStyle(e.target);
+			
+			
+		}
+
+		function zoomToFeature(e) {
+			map.fitBounds(e.target.getBounds());
+			info.update(layer.feature.properties);
+
+		}
+
+		
+
+		function highlightFeature(e) {
+			if (lastFeature) {
+				mylayer.resetStyle(lastFeature);
+
+			}
+
+
+			
+			layer = e.target;
+
+			layer.setStyle({
+				fillColor: '#FCE6B1',
+				fillOpacity: 0.7
+			});
+
+
+
+			if (!L.Browser.ie && !L.Browser.opera) {
+				layer.bringToFront();
+			}
+			lastFeature = e.target;
+			info.update(layer.feature.properties);
+
+		}
+
+		var lastFeature2;
+
+		function clickonme(e) {
+			if (lastFeature2) {
+				mylayer.resetStyle(lastFeature2);
+
+			}
+
+			
+			layer = e.target;
+
+			layer.setStyle({
+				fillColor: '#FCE6B1',
+				fillOpacity: 0.7
+			});
+
+			if (!L.Browser.ie && !L.Browser.opera) {
+				layer.bringToFront();
+			}
+		
+			lastFeature2 = e.target;
+
+			info.update(layer.feature.properties);
+
+			
+
+		}
+
+		function onEachFeature(feature, layer) {
+			layer.on({
+				mouseover: highlightFeature,
+				click: clickonme,
+				mouseout: resetHighlight
+			});
+		}
+		var mylayer = L.geoJson(statesData, {
+			style: style,
+			onEachFeature: onEachFeature
+		});
+
+		map.addLayer(mylayer);
+		$('a#LNK').click(function(){ 
+
+
+		var situation = $(this).attr("value");
+
+
+
+		console.log(situation);
+
+		if (situation ==2) {
+              map.removeLayer(mylayer);
+            mylayer = L.geoJson(statesData, {style: style2, onEachFeature: onEachFeature});
+            map.addLayer(mylayer);
+
+            info.update = function (props) {
+			this._div.innerHTML = (props ?
+	
+
+			'<h2>' + props.name + ' County</h2> <b>Goggles/Night Vision: </b><span>' + props.eye_gogglestotal + '</span> worth a total of <span>$'+ props.eye_gogglesmoney +'</span><br>Participating agencies: <b>' + props.eye_gogglesagencies + '</b><br>'
+				: 'Hover over or click on a county for more information.');
+		};
+		info.update();
+	} else if (situation ==1) {
+		 map.removeLayer(mylayer);
+            mylayer = L.geoJson(statesData, {style: style, onEachFeature: onEachFeature});
+            map.addLayer(mylayer);
+
+
+            info.update = function (props) {
+			this._div.innerHTML = (props ?
+				'<h2>' + props.name + ' County</h2><h5>Total Guns: TK worth a total of $TK</h5> <p><b>M-16 rifles:</b> <span>' + props.msixteentotal + '</span> worth a total of <span>$'+ props.msixteenmoney +'</span><br>Participating agencies: <b>' + props.msixteenagencies + '</b></p><p><b>M-14 rifles:</b> <span>' + props.mfourteentotal + '</span> worth a total of <span>$'+ props.mfourteenmoney +'</span><br>Participating agencies: <b>' + props.mfourteenagencies + '</b></p><br><b>Total 12 Gauge Shotguns (Riot Type):</b> <span>' + props.twelvegauge + '</span><br><p><b>Bayonets:</b> <span>'+ props.bayonet +'</span><br>'
+				: 'Hover over or click on a county for more information.');
+		};
+		info.update();
+
+
+} else if (situation ==3) {
+		 map.removeLayer(mylayer);
+            mylayer = L.geoJson(statesData, {style: style3, onEachFeature: onEachFeature});
+            map.addLayer(mylayer);
+           
+            info.update = function (props) {
+			this._div.innerHTML = (props ?
+
+				'<h2>' + props.name + ' County</h2> <b>Trucks:</b> <span>' + props.trucks_total + '</span> worth a total <span>$'+ props.trucks_money +'</span><br> <b>How many armormed trucks?</b> <span>' + props.armored_trucktotal + '</span><br></p>Participating agencies: <b>' + props.trucks_agencies + '</b><br>'
+
+				: 'Hover over or click on a county for more information.');
+		};
+	info.update();
+
+
+} else if (situation ==4) {
+		 map.removeLayer(mylayer);
+            mylayer = L.geoJson(statesData, {style: style4, onEachFeature: onEachFeature});
+            map.addLayer(mylayer);
+            info.update = function (props) {
+			this._div.innerHTML = (props ?
+
+				'<h2>' + props.name + ' County</h2> <b>Gas Masks:</b> <span>' + props.gas_maskstotal + '</span> worth a total of <span>$'+ props.gas_masksmoney +'</span><br>Participating agencies: <b>' + props.gas_maskssagencies + '</b><br>'
+			
+				: 'Hover over or click on a county for more information.');
+		};
+		info.update();
+
+
+} else if (situation ==5) {
+		  map.removeLayer(mylayer);
+            mylayer = L.geoJson(statesData, {style: style5, onEachFeature: onEachFeature});
+            map.addLayer(mylayer);
+            info.update = function (props) {
+			this._div.innerHTML = (props ?
+
+			
+			'<h2>' + props.name + ' County</h2> <b>Body Armor:</b> <span>' + props.body_armortotal + '</span> worth a total of <span>$'+ props.body_armormoney +'</span><br>Participating agencies: <b>' + props.body_armoragencies + '</b><br>'
+				: 'Hover over or click on a county for more information.');
+		};
+		info.update();
+
+
+}
+});
+
+$(window).on("resize", function() {
+    $("#map").height($(window).height()).width($(window).width());
+    map.invalidateSize();
+}).trigger("resize");
+		
+
+		
+
+
+
+	</script>
+</body>
+</html>
