@@ -1,0 +1,41 @@
+body { font-family: 'Open Sans', sans-serif; padding-right: 0px; padding-left: 0px; }
+table { font-family: 'Open Sans', sans-serif; font-size: 12px; float: left; }
+.table th,
+.table td { text-align: left; }
+table.display td {
+	padding: 10px 10px;
+	background-color: white;
+}
+tr.odd {
+	background-color: white;
+}
+a {color: #E07102;
+	text-decoration: underline;
+
+}
+.table th { font-size: 14px }
+.table thead th { vertical-align: middle; cursor: pointer; }
+
+label, input, button, select, textarea { line-height: 30px }
+input, textarea, select, .uneditable-input { height: 25px; line-height: 25px; }
+select { width: 75px }
+.dataTables_length { padding-left: 10px }
+.dataTables_filter { padding-right: 10px }
+.dataTables_info {
+	color: #E07102;
+	font-weight: bold;
+	margin-top: 10px;
+	padding-top: 10px;
+
+}
+td.left.sorting_1 { 
+
+	background-color: rgba(224, 113, 2, 0.5);
+	
+   filter: alpha(opacity=50);
+   filter: progid:DXImageTransform.Microsoft.Alpha(opacity=50);
+   -moz-opacity: 0.50;
+
+}
+
+.table tbody>tr:nth-child(odd)>th>td.sorting_1 { background-color: rgba(220, 240, 122, 0.1); }

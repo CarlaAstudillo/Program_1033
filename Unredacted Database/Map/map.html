@@ -1,0 +1,380 @@
+<!doctype html>
+<html>
+<head>
+  <title>New Jersey 1033 Program: Assault Rifles</title>
+
+
+<link href='https://api.tiles.mapbox.com/mapbox.js/v2.1.2/mapbox.css' rel='stylesheet' />
+
+<link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro' rel='stylesheet' type='text/css'>
+
+  
+  <style type="text/css">
+    body {
+      font-family: 'Source Sans Pro', sans-serif;
+      padding: 0;
+      margin: 0;
+      height: 650px;
+      border-bottom: 1px solid #3B3B3B;
+
+    }
+
+
+    html, #assaultrifles
+  {
+      height: 100%;
+    }
+
+   .leaflet-popup-content p {
+    font-size: 12px;
+    line-height: 15px;
+    margin-top: 5px;
+   }
+
+   .leaflet-popup-content {
+    font-size: 14px;
+    line-height: 16px;
+    z-index: 1000;
+   }
+
+   .leaflet-container h2 {
+    font-size: 16px;
+    line-height: 16px;
+    padding-bottom: 0;
+    color: #333;
+    margin: 0;
+
+   }
+
+   .leaflet-container a {
+    font-weight: bold;
+     color: #333;
+margin: 0;
+padding:0;
+
+   }
+
+   .leaflet-container a:hover {
+    color: #777;
+
+   }
+
+   .leaflet-container h3 {
+    font-size: 20px;
+    line-height: 16px;
+    padding:5px;
+
+   }
+
+
+   .county {
+    font-size: 12px;
+    width: 95%;
+    font-weight: bold;
+    padding: 0 5px;
+    color: #666;
+    
+    text-transform: capitalize;
+
+   }
+
+   .guns {
+    font-size: 14px;
+    width: 95%;
+    padding-bottom: 5px;
+    padding-left: 5px;
+    
+
+   }
+
+   .total {
+    font-size: 16px;
+    width: 95%;
+    padding-bottom: 5px;
+    padding-left: 5px;
+    font-weight: bold;
+    color: #333;
+    text-transform: capitalize;
+    
+
+   }
+
+
+   .agency {
+    font-size: 13px;
+    line-height: 16px;
+    padding: 5px;
+    width: 95%;
+    font-weight: bold;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #333;
+
+   }
+
+   .leaflet-container h5 {
+    font-size: 12px;
+    font-weight: bold;
+    margin: 5px 0 0 0;
+    text-transform: uppercase;
+   }
+
+   .info {
+      padding: 6px 8px;
+      width: 80%;
+      height: auto;
+      opacity: 0.8;
+      background: white;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      border-radius: 5px;
+    }
+
+   @media screen and (max-width: 400px) {
+            
+
+           
+
+     #assaultrifles, body
+  {
+      height: 500px;
+    }
+
+    .info {
+  width:130px;
+    }
+          }
+
+
+   .legend label,
+.legend span {
+  display:block;
+  float:left;
+  height:15px;
+  width:20%;
+  text-align:center;
+  font-size:9px;
+  color:#808080;
+}
+
+  .legend span {
+  border-top: 1px solid #333;
+  border-bottom: 1px solid #333;
+  border-right: 1px solid #333;
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  }
+
+   
+
+  
+
+  </style>
+
+ <script src="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js"></script>
+  <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src='https://api.tiles.mapbox.com/mapbox.js/v2.1.2/mapbox.js'></script>
+<script src="js/pym.js" type="text/javascript"></script>
+<script src="js/nj_counties.geojson"></script>
+<script src="js/rifles.geojson"></script>
+
+                
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+</head>
+<body>
+ 
+
+
+
+ <div id='legend' style='display:none;'>
+ 
+    <small>Source: <a href="http://www.nj.gov/oag/">NJ Attorney General's Office</a></small>
+</div>
+
+  <div id="assaultrifles"> </div>
+
+
+
+ 
+  <script>
+
+
+L.mapbox.accessToken = 'pk.eyJ1Ijoic2xkYXRhdGVhbSIsImEiOiJuR1ZmQ01vIn0.zyEdsIKM-4orPm-3Y0XWDQ';
+var map = L.mapbox.map('assaultrifles',{attributionControl: false})
+    map.setView([40.1524 , -74.6279], 8);
+    map.legendControl.addLegend(document.getElementById('legend').innerHTML);
+
+    var windwidth = window.innerWidth;
+
+  
+
+var pymChild = new pym.Child();
+
+
+
+
+function getRadius(d) {
+      return d < 5 ? '2' :
+             d < 10  ? '3' :
+             d < 15  ? '4' :
+             d < 20  ? '5' :
+             d < 25  ? '6' :
+             d < 30  ? '7' :
+             d < 200  ? '30' :
+                        '0';
+    }
+
+
+var geojsonMarkerOptions = {
+    fillColor: "#474747",
+    color: "#333",
+    weight: 1,
+    opacity: 1,
+    fillOpacity: 0.8
+};
+
+
+var info = L.control();
+
+if (windwidth < 400) {
+
+  var info = L.control({position:'topleft'});
+}
+
+    info.onAdd = function (map) {
+      this._div = L.DomUtil.create('div', 'info');
+      this.update();
+      return this._div;
+    };
+
+
+    info.update = function (props) {
+      this._div.innerHTML = (props ?
+        "<div class='county'>" + props.county + "</div><div class='agency'>" + props.agency + "</div><div class='guns'>M-14s: " + props.m14 + "</div><div class='guns'>M-16s: " + props.m16 + "</div><div class='total'>Total: " + props.totalrifles + "</div>"
+
+
+        : "<div class='county'>Hover over or click on a police department location for more information.</div>");
+
+    };
+
+
+    
+
+    
+    info.addTo(map);
+
+    var lastFeature;
+
+    function highlightFeature(e) {
+      if (lastFeature) {
+        riflelayer.resetStyle(lastFeature);
+
+      }
+
+
+      
+      layer = e.target;
+
+      layer.setStyle({
+        color: '#780E00',
+        weight: 2
+      });
+
+
+
+      if (!L.Browser.ie && !L.Browser.opera) {
+        layer.bringToFront();
+      }
+      lastFeature = e.target;
+      info.update(layer.feature.properties);
+
+    }
+
+var lastFeature2;
+
+    function clickonme(e) {
+      if (lastFeature2) {
+        riflelayer.resetStyle(lastFeature2);
+
+      }
+
+      map.setView(e.latlng, map.getZoom() + 1);
+      layer = e.target;
+
+      layer.setStyle({
+        color: '#780E00',
+        weight: 2
+      });
+
+      if (!L.Browser.ie && !L.Browser.opera) {
+        layer.bringToFront();
+      }
+    
+      lastFeature2 = e.target;
+
+      info.update(layer.feature.properties);
+
+      
+
+    }
+
+    function zoomToFeature(e) {
+    
+}
+
+function resetHighlight(e) {
+      riflelayer.resetStyle(e.target);
+      
+      
+    }
+
+
+
+function onEachFeature(feature, layer) {
+      layer.on({
+        mouseover: highlightFeature,
+        click: clickonme,
+        mouseout: resetHighlight
+      });
+    }
+
+
+var CountyStyle = {
+    weight: 2,
+        opacity: 1,
+        color: '#9C9C9C',
+        dashArray: '3',
+        fillOpacity: 0
+};
+
+
+    var countylayer = L.geoJson(njcounties, {
+    style: CountyStyle
+}).addTo(map);
+
+var riflelayer = L.geoJson(rifles, {
+  style: function(feature) {
+        return {
+        radius: getRadius(feature.properties.totalrifles)
+      };
+    },
+    pointToLayer: function (feature, latlng) {
+        return L.circleMarker(latlng, geojsonMarkerOptions);
+    },
+    onEachFeature: onEachFeature
+}).addTo(map);
+
+
+   
+map.scrollWheelZoom.disable();
+    
+  
+
+
+
+
+  
+
+
+
+  
+  </script>
+</body>
+</html>
